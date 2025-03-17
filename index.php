@@ -10,18 +10,38 @@ $causali = $conn->query("SELECT * FROM causali")->fetch_all(MYSQLI_ASSOC);
 $selected_user = isset($_POST['id_utente']) ? $_POST['id_utente'] : null;
 $selected_machine = isset($_POST['id_macchinario']) ? $_POST['id_macchinario'] : null;
 $selected_causale = isset($_POST['id_causale']) ? $_POST['id_causale'] : null;
+$show_causale = false; // Initialize flag
 
 // Handle form submissions
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['start'])) {
         $id_utente = $_POST['id_utente'];
         $id_macchinario = $_POST['id_macchinario'];
-        $conn->query("INSERT INTO eventi (id_utente, id_macchinario, data_ora, evento) VALUES ($id_utente, $id_macchinario, NOW(), 1)"); // 1 for start
-    } elseif (isset($_POST['stop'])) {
+        $stmt = $conn->prepare("INSERT INTO eventi (id_utente, id_macchinario, data_ora, evento) VALUES (?, ?, NOW(), 1)");
+        $stmt->bind_param("ii", $id_utente, $id_macchinario);
+        if ($stmt->execute()) {
+            // Success (you can add a message here)
+        } else {
+            // Error handling (you can add error logging here)
+            echo "Error: " . $stmt->error;
+        }
+        $stmt->close();
+    } elseif (isset($_POST['stop_request'])) {
+        $show_causale = true;
+    } elseif (isset($_POST['confirm_stop'])) {
         $id_causale = $_POST['id_causale'];
         $id_utente = $_POST['id_utente'];
         $id_macchinario = $_POST['id_macchinario'];
-        $conn->query("INSERT INTO eventi (id_utente, id_macchinario, data_ora, id_causale, evento) VALUES ($id_utente, $id_macchinario, NOW(), $id_causale, 2)"); // 2 for stop
+        $stmt = $conn->prepare("INSERT INTO eventi (id_utente, id_macchinario, data_ora, id_causale, evento) VALUES (?, ?, NOW(), ?, 2)");
+        $stmt->bind_param("iii", $id_utente, $id_macchinario, $id_causale);
+        if ($stmt->execute()) {
+            // Success (you can add a message here)
+        } else {
+            // Error handling (you can add error logging here)
+            echo "Error: " . $stmt->error;
+        }
+        $stmt->close();
+        $show_causale = false;
     }
 }
 ?>
@@ -61,9 +81,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </select>
 
         <button type="submit" name="start">Start</button>
-        <button type="submit" name="stop">Stop</button>
+        <button type="submit" name="stop_request">Stop</button>
 
-        <?php if (isset($_POST['stop'])): ?>
+        <?php if ($show_causale): ?>
             <label for="id_causale">Causale:</label>
             <select name="id_causale">
                 <?php foreach ($causali as $causale): ?>
@@ -72,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </option>
                 <?php endforeach; ?>
             </select>
+            <button type="submit" name="confirm_stop">Confirm Stop</button>
         <?php endif; ?>
     </form>
 </body>
