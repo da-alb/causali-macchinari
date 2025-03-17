@@ -15,6 +15,7 @@ This is a simple web application built with PHP and MariaDB to track machine usa
 * Apache web server
 * PHP (with `mysqli` extension)
 * MariaDB database server
+* Simple.css (https://simplecss.org/) for basic styling
 
 ## Installation
 
