@@ -49,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="simple.css">
     <title>Causali Macchinari</title>
     <script>
         function updateClock() {
@@ -79,6 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </option>
             <?php endforeach; ?>
         </select>
+
+        <br>
 
         <button type="submit" name="start">Start</button>
         <button type="submit" name="stop_request">Stop</button>
